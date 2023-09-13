@@ -44,7 +44,7 @@ img1 = fig._show(width='400')
 
 <center><a href="https://www.youtube.com/watch?v=8qjl4lysi_s" target="_blank">Music for this Problem</a></center>
 
-<catsoop-section>Introduction</catsoop-section>
+<section>Introduction</section>
 
 In this exercise, we will write a program to compute a 2-dimensional _linear
 regression_ for a set of data.  In short, we will try to explain the
@@ -83,33 +83,33 @@ problems, but for now we'll just focus on _implementing_ a linear regression
 As you might guess, this will be a fairly complicated program, and so, as we
 have seen before, we will break it down into smaller pieces first.
 
-<catsoop-section>Primitives</catsoop-section>
+<section>Primitives</section>
 
 We'll start by defining some primitives:
 
-<catsoop-subsection>Sample Mean</catsoop-subsection>
+<subsection>Sample Mean</subsection>
 The _sample mean_ of a set of $N$ values $x_0, x_1, \ldots, x_{N-1}$ is given by:
 
 $$\overline{X} = \frac{1}{N}\sum_{i=0}^{N-1} x_i$$
 
-<catsoop-subsection>Sample Variance</catsoop-subsection>
+<subsection>Sample Variance</subsection>
 The _sample variance_ of a set of $N$ values $x_0, x_1, \ldots, x_{N-1}$ is given by the following (note the two separate forms):
 
 $$\text{Var}(X) = \frac{1}{N-1}\sum_{i=0}^{N-1} (x_i - \overline{X})^2$$
 $$\text{Var}(X) = \frac{1}{N-1}\left(\sum_{i=0}^{N-1}(x_i^2) - \frac{1}{N}\left(\sum_{i=0}^{N-1}x_i\right)^2\right)$$
 
-<catsoop-subsection>Sample Standard Deviation</catsoop-subsection>
+<subsection>Sample Standard Deviation</subsection>
 The _sample standard deviation_ of a set of $N$ values $x_0, x_1, \ldots, x_{N-1}$ is given by:
 
 $$\sigma_X = \sqrt{\text{Var}(X)} = \sqrt{\frac{1}{N-1}\sum_{i=0}^{N-1} (x_i - \overline{X})^2}$$
 
-<catsoop-subsection>Sample Covariance</catsoop-subsection>
+<subsection>Sample Covariance</subsection>
 The _sample covariance_ of two variables $X$ and $Y$ (an estimate of the true underlying covariance of the two variables), each with $N$ samples, such that $y_i$ is associated with $x_i$, is given by the following (note the two separate forms):
 
 $$\text{cov}(X, Y) = \frac{1}{N-1}\sum_{i=0}^{N-1} (x_i-\overline{X})(y_i-\overline{Y})$$
 $$\text{cov}(X, Y) = \frac{1}{N-1}\left(\sum_{i=0}^{N-1}(x_iy_i) - \frac{1}{N}\left(\sum_{i=0}^{N-1}x_i\right)\left(\sum_{i=0}^{N-1}y_i\right)\right)$$
 
-<catsoop-section>Finding the "Best Fit" Line</catsoop-section>
+<section>Finding the "Best Fit" Line</section>
 
 We would like to find the values $m$ and $b$ for which $y = mx+b$ best approximates the data we've gathered.
 
@@ -125,7 +125,7 @@ and $b$.  Understanding the derivation is not crucial for this exercise,
 however, and so you are welcome to skip the derivation and move on to
 <catsoop-ref label="results"><a href="{link}">{type} {number}: {title}</a></catsoop-ref>.
 
-<catsoop-subsection>Derivation</catsoop-subsection>
+<subsection>Derivation</subsection>
 
 Here, we want to find the values of $m$ and $b$ that minimize the sum of squared error (SSE):
 
@@ -139,7 +139,7 @@ $$\frac{\delta}{\delta b}\text{SSE} = \sum_{i=0}^{N-1} -2(y_i - mx_i - b)$$
 
 $$\frac{\delta}{\delta m}\text{SSE} = \sum_{i=0}^{N-1} -2x_i(y_i - mx_i - b)$$
 
-<catsoop-subsubsection>Solving for b</catsoop-subsubsection>
+<subsubsection>Solving for b</subsubsection>
 
 Let's start by considering the partial derivative with respect to $b$.  We want to find when this expression is 0.
 
@@ -167,7 +167,7 @@ $$\frac{1}{N}\sum_{i=0}^{N-1} y_i - m\left(\frac{1}{N}\sum_{i=0}^{N-1}x_i\right)
 Notice that the two expressions on the left have the form of our _sample mean_ equation from above, so we know that this must be:
 $$\overline{Y} - m\overline{X} = b$$
 
-<catsoop-subsubsection>Solving for m</catsoop-subsubsection>
+<subsubsection>Solving for m</subsubsection>
 
 Now we'll consider the partial derivative with respect to $m$, and again set it equal to zero.
 $$\sum_{i=0}^{N-1} -2x_i(y_i - mx_i - b) = 0$$
@@ -204,7 +204,7 @@ Recalling the definitions of _sample variance_ and _sample covariance_, we can s
 
 $$\frac{\text{cov}(X, Y)}{\text{Var}(X)} = m$$
 
-<catsoop-subsection label="results">Results</catsoop-subsection>
+<subsection label="results">Results</subsection>
 
 The analysis above leads us to the following conclusion:
 
@@ -218,7 +218,7 @@ Here, the first equation tells us that the slope of the "best fit" line is the
 ratio of the covariance of $X$ and $Y$ to the variance of $X$.  The second
 tells us that the line must pass through the point $(\overline{X}, \overline{Y})$.
 
-<catsoop-section>Pearson's R</catsoop-section>
+<section>Pearson's R</section>
 
 We will also define the Pearson Correlation Coefficient of two variables $X$ and $Y$ as:
 
@@ -226,7 +226,7 @@ $$r = \frac{\text{cov}(X,Y)}{\sigma_X\sigma_Y}$$
 
 This number $r$, which is between $-1$ and $1$, tells us how strongly, and in what direction, the two variables are correlated: a value of 1 implies total positive linear correlation, 0 implies no linear correlation, and -1 implies total negative linear correlation.
 
-<catsoop-section>Your Task</catsoop-section>
+<section>Your Task</section>
 
 Your task in this exercise is to implement several Python functions related to
 the discussion above:
@@ -259,7 +259,7 @@ In order to keep things organized, you should try to implement these functions
 in terms of the others whenever possible!
 
 
-<catsoop-section>Submission</catsoop-section>
+<section>Submission</section>
 
 <question pythoncode>
 csq_interface="upload"

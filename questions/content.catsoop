@@ -14,7 +14,7 @@ all the built-in question types.  Look at the source of this page
 Note that you will need the `'submit'` permission to submit answers to these
 questions.
 
-<catsoop-section>Options Present in All Questions</catsoop-section>
+<section>Options Present in All Questions</section>
 
 * `csq_prompt`: A piece of text to be displayed before the question's input.
 * `csq_name`: A unique identifier (alphanumeric only) for the question.  If none is provided, a default value is used.
@@ -30,9 +30,9 @@ questions.
     * `'legacy'`: Check the response in the same request that submits it.  Nice for short checks.
     * `'manual'`: No automatic score is assigned.  Rather, the submission is logged so it can later be manually graded.
 
-<catsoop-section>Base Question Types</catsoop-section>
+<section>Base Question Types</section>
 
-<catsoop-subsection>smallbox</catsoop-subsection>
+<subsection>smallbox</subsection>
 
 A small box accepting arbitrary text input.
 
@@ -43,7 +43,7 @@ csq_check_function = lambda sub, sol: sub.lower().strip() == sol.lower()
 csq_size = 30 # width of text box
 </question>
 
-<catsoop-subsection>bigbox</catsoop-subsection>
+<subsection>bigbox</subsection>
 
 A bigger box accepting arbitrary text input.  Often used for survey responses.
 
@@ -55,7 +55,7 @@ csq_cols = 50
 csq_check_function = lambda sub, sol: 1 # check functions two args
 </question>
 
-<catsoop-subsection>multiplechoice</catsoop-subsection>
+<subsection>multiplechoice</subsection>
 
 Multiple choice questions come in a few different forms, based on the value of `csq_renderer`.  The default mode renders choices as a drop-down menu:
 
@@ -87,9 +87,9 @@ csq_options=['Aloha', 'Guten Tag', 'Auf Wiedersehen', 'Hey', 'Goodbye', 'Tsch√º√
 csq_soln = [True, True, False, True, False, False]
 </question>
 
-<catsoop-section>Python-related Questions</catsoop-section>
+<section>Python-related Questions</section>
 
-<catsoop-subsection>pythonic</catsoop-subsection>
+<subsection>pythonic</subsection>
 
 `pythonic` questions expect a single Python expression as input, and a single
 Python expression as output.
@@ -109,7 +109,7 @@ def csq_check_function(sub, sol):
     return 1
 </question>
 
-<catsoop-subsection>pythonliteral</catsoop-subsection>
+<subsection>pythonliteral</subsection>
 
 `pythonliteral` is like `pythoncode`, except that it expects a single literal
 value instead of an abitrary expression.  This can be useful for numbers.
@@ -120,7 +120,7 @@ csq_soln = 7**0.5
 csq_check_function = lambda sub, sol: abs(sub - sol) <= 1e-3
 </question>
 
-<catsoop-subsection>pythoncode</catsoop-subsection>
+<subsection>pythoncode</subsection>
 
 For larger coding problems (e.g., writing a function or computing a value), the `pythoncode` question
 should be used.  It is a little more complicated than the other question types.
@@ -268,9 +268,9 @@ For a bigger example from 6.145, see the following page (which requires the
 
 * [Linear Regression](CURRENT/linregress)
 
-<catsoop-section>Symbolic Expressions</catsoop-section>
+<section>Symbolic Expressions</section>
 
-<catsoop-subsection>expression</catsoop-subsection>
+<subsection>expression</subsection>
 
 This question type is used for checking symolic math expressions.
 
@@ -280,7 +280,7 @@ csq_syntax='python'
 csq_soln = ['sqrt(e**(j*omega))', 'e**(j*omega / 2)']  # can either be a single string, or a list of multiple correct answers.
 </question>
 
-<catsoop-section>Per-User Randomized Values</catsoop-section>
+<section>Per-User Randomized Values</section>
 
 Invoking the `csm_tutor.init_random()` function will seed the `random.Random`
 object stored in `cs_random` in such a way that the values it produces will be
