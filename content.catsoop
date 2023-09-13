@@ -1,0 +1,11 @@
+Hello!  This sample course, which is designed to go over some of the basics of
+CAT-SOOP, is set up to mirror the structure of a regular CAT-SOOP course.
+
+This is the main page, which, for a normal class, might contain a calendar, or
+weekly announcements, or links to assignments.  The contents of this page are
+contained in the `content.catsoop` in the root of the `sample_course`
+directory.  You should also take a look at `preload.py`, which controls much of
+the behavior of this page.
+
+Additionally, more detailed information is available from the "Pages" dropdown
+at the top of this page.
