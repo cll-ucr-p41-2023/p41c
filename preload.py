@@ -4,11 +4,13 @@
 # LOOK AND FEEL
 
 cs_base_color = "#A31F34"  # the base color
-cs_header = '6.SAMP'  # the upper-left corner
+cs_course_number = 'P41A'
+cs_header = cs_course_number  # the upper-left corner
 cs_icon_url = 'COURSE/favicon_local.gif'  # the favicon, if any
 # the 'header' text for the page
-cs_long_name = cs_content_header = "Sample Course"
-cs_title = 'Sample Course - CAT-SOOP'  # the browser's title bar
+cs_long_name = cs_content_header = "Welcome to Phys 41A"
+cs_title = cs_course_number # the browser's title bar
+cs_breadcrumbs_html = ''
 
 # don't try to parse markdown inside of these tags
 cs_markdown_ignore_tags = ('script', 'svg', 'textarea')
@@ -18,12 +20,12 @@ cs_markdown_ignore_tags = ('script', 'svg', 'textarea')
 #  * text: the text to show for the link
 #  * link: the target of the link (either a URL or another list of this same form)
 cs_top_menu = [
-    {'link': 'COURSE', 'text': 'Homepage'},
-    {'text': 'Pages', 'link': [
-                                {'text': 'Structure', 'link': 'COURSE/structure'},
-                                {'text': 'Markdown', 'link': 'COURSE/markdown'},
-                                {'text': 'Questions', 'link': 'COURSE/questions'},
-                              ]},
+    {'text': 'Home', 'link': 'COURSE'},
+    {'text': 'Resources', 'link': 'COURSE/material/resources'},
+    {'text': 'Assignments', 'link': [
+        {'text': 'Prelabs', 'link': 'COURSE/material/prelabs'},
+        {'text': 'Labs', 'link': 'COURSE/material/labs'},
+    ]},
 #    {'text': 'Sample Menu', 'link': [
 #                                     {'link': 'COURSE/calendar', 'text': 'Calendar and Handouts'},
 #                                     {'link': 'COURSE/announcements', 'text': 'Archived Announcements'},
