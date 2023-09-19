@@ -22,7 +22,7 @@ cs_markdown_ignore_tags = ('script', 'svg', 'textarea')
 cs_top_menu = [
     {'text': 'Home', 'link': 'COURSE'},
     {'text': 'Resources', 'link': 'COURSE/material/resources'},
-    {'text': 'Assignments', 'link': [
+    {'text': 'Labs', 'link': [
         {'text': 'Prelabs', 'link': 'COURSE/material/prelabs'},
         {'text': 'Labs', 'link': 'COURSE/material/labs'},
     ]},
