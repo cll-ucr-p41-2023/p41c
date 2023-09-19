@@ -1,3 +1,6 @@
 Prelabs will appear here as they are assigned.
 
-* <a href="CURRENT/prelab0/">Prelab 0</a> (Due: XYZ)
+<python>
+for prelab in material_manager.get("prelabs", status="released"):
+    print(f"* <a href='{prelab.path()}'>{prelab.cs_long_name}</a> (Due: {prelab.dt_due_date})")
+</python>

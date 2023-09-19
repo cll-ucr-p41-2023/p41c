@@ -26,6 +26,7 @@ cs_top_menu = [
         {'text': 'Prelabs', 'link': 'COURSE/material/prelabs'},
         {'text': 'Labs', 'link': 'COURSE/material/labs'},
     ]},
+    {"link": "COURSE/progress", "text": "Progress"},
 #    {'text': 'Sample Menu', 'link': [
 #                                     {'link': 'COURSE/calendar', 'text': 'Calendar and Handouts'},
 #                                     {'link': 'COURSE/announcements', 'text': 'Archived Announcements'},
@@ -165,3 +166,197 @@ def cs_post_load(context):
         context['cs_footer'] = 'This page was last updated on %s (revision <code>%s</code>).<br/>&nbsp;<br/>' % (t, h.decode())
     except:
         pass
+
+# Assignments
+from datetime import datetime, timedelta, MAXYEAR
+from typing import Dict, List, Literal, Tuple, Union
+
+NOW = datetime.now()
+
+def cs_date_to_datetime(timestring):
+    """
+    Converts cs_release/due_dates into datetime objects for easier use in the back end.
+    """
+    if timestring == "NEVER":
+        return datetime(year=MAXYEAR, month=12, day=31, hour=23, minute=59, second=59)
+    elif timestring == "ALWAYS":
+        return datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0)
+    elif timestring[0].isdigit():
+        # absolute times are specified as strings 'YYYY-MM-DD:HH:MM'
+        return datetime.strptime(timestring, "%Y-%m-%d:%H:%M")
+    else:
+        raise Exception("Invalid time style: %s" % timestring)
+
+class Material:
+    """
+    Base class for all material in the course.
+    """
+    def __init__(self, folder:str, basename:str, cs_long_name:str, cs_release_date:str, cs_due_date:str):
+        self.folder = folder
+        self.basename = basename
+        self.cs_long_name = cs_long_name
+        self.cs_release_date = cs_release_date
+        self.cs_due_date = cs_due_date
+        self.dt_release_date = cs_date_to_datetime(cs_release_date)
+        self.dt_due_date = cs_date_to_datetime(cs_due_date)
+
+    def preload_vars(self):
+        return (self.cs_long_name, self.cs_release_date, self.cs_due_date)
+
+    def path(self):
+        return f"COURSE/material/{self.folder}/{self.basename}"
+    
+    def is_released(self):
+        return NOW >= self.dt_release_date
+    
+    def is_due(self):
+        return NOW >= self.dt_due_date
+
+class MaterialManager:
+    """
+    Helper class to easily manage the material in the course.
+    """
+    def __init__(self):
+        self.material: Dict[str, List[Material]] = dict()
+
+    def add(self, material:List[Material]):
+        if not isinstance(material, list):
+            material = [material]
+        for mat in material:
+            self.material[mat.folder] = self.material.get(mat.folder, []) + [mat]
+
+    def get(self, folder, basename:str=None, status:Literal["released", "unreleased", "all"]="all") -> Union[Material, List[Material]]:
+        mats = self.material.get(folder, [])
+        if basename is not None:
+            for m in mats:
+                if m.basename == basename:
+                    return m
+            return None
+        else:
+            if status == "all":
+                return mats
+            elif status == "released":
+                return [m for m in mats if m.is_released()]
+            elif stats == "unreleased":
+                return [m for m in mats if not m.is_released()]
+
+# Add material
+material_manager = MaterialManager()
+material_manager.add([
+    Material("prelabs", "prelab0", "Prelab 0: Practicing the Basics", "ALWAYS", "NEVER"),
+])
+
+# Grading functions
+def get_page_stats(path, auto_ext=None, user=None):
+    from collections import OrderedDict
+
+    if auto_ext is None:
+        auto_ext = []
+    if user is None:
+        user = cs_username
+    try:
+        x = csm_tutor.compute_page_stats(globals(), user, [cs_course] + path, ['question_info', 'state', 'actions', 'manual_grades'])
+    except:
+        link = "/".join(path)
+        raise Exception(f"An error occurred when trying to parse the following path:\n'{link}'. Are you sure this file exists?")
+    qi = x['question_info']
+    np = OrderedDict((i, j['csq_npoints']) for i,j in qi.items())
+
+    bests = {k: 0 for k in qi}
+    times = {k: None for k in qi}
+    dues = {k: None for k in qi}
+    exts = {k: False for k in qi}
+    raws = {k: 0 for k in qi}
+    latenesses = {k: 0 for k in qi}
+    late_by = {k: 0 for k in qi}
+    # look through all actions, looking for the one that maximizes score
+    for a in x['actions']:
+        if a['action'] != 'submit':
+            continue
+        else:
+            t = csm_time.from_detailed_timestamp(a['timestamp'])
+            d = csm_time.from_detailed_timestamp(a['due_date'])
+            for n in a['names']:
+                if n not in bests:
+                    continue
+                try:
+                    gmode = qi[n].get("csq_grading_mode",None)
+                    if gmode == "manual":
+                      s=0
+                      for i in x['manual_grades']:
+                        if i['qname']==n:
+                          s=i['score']
+                    else:
+                      try:
+                          s = max(0.0, min(1.0, float(csm_tutor.read_checker_result(globals(), a['checker_ids'][n])['score'])))
+                      except:
+                          s = max(0.0, min(1.0, a['scores'][n]))
+                except:
+                    continue
+                # edue = d + timedelta(seconds=get_extension(path, n, exts, auto_ext))
+
+                # l = late_penalty(qi[n], t, edue)  # this has to be here because of extensions
+                # print(l)
+                real_score = s
+                if real_score >= bests[n]:
+                    bests[n] = real_score
+                    raws[n] = s
+                    # latenesses[n] = l
+                    times[n] = t
+                    # dues[n] = edue
+    # finally, go through and set scores that were overridden.
+    for n in np:
+        for so in cs_user_info.get('score_override', []):
+            if all(i==j for i,j in zip(so[0], path + [n])):
+                bests[n] = so[1]
+                raws[n] = so[1]
+                latenesses[n] = None
+    w_norm = sum(np.values())
+    np = {k: v/w_norm for k,v in np.items()}
+    names = list(qi)
+    dnames = {i: qi[i].get('csq_display_name', i) for i in names}
+    return {'time': times, 'raw': raws, 'late': latenesses, 'score': bests, 'weight': np, 'names': list(names), 'dnames': dnames, 'ext': exts, 'late_by': late_by, 'due':dues}
+
+def progress_page(user=None, only_released=True):
+    bh = "<catsoop-section>Prelabs</catsoop-section>"
+    if only_released:
+        for prelab in material_manager.get("prelabs", status="released"):
+            bh += f"<catsoop-subsection>{prelab.cs_long_name}</catsoop-subsection>"
+            bh += progress_table_prelab(prelab.basename)[1]
+    else:
+        for prelab in material_manager.get("prelabs"):
+            unreleased = not prelab.is_released()
+            bh += f"<catsoop-subsection>{prelab.cs_long_name} {f'(Releasing: {prelab.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
+            bh += progress_table_prelab(prelab.basename)[1]
+    return bh
+
+def progress_table_prelab(basename, user=None):
+    path = ["material", "prelabs", basename]
+    auto_ext = []
+    x = get_page_stats(path, auto_ext, user)
+
+    p2 = '__'.join(path)
+    bh = ""
+    bh+='<center>'
+    bh+='<table border="1">'
+    bh+='<tr><td colspan="5" align="center"><b>%s</b> (<a onclick="toggle_details(\'%s\')" style="cursor:pointer;">show/hide details</a>)</td></tr>' % (path[-1].upper(), p2)
+    # bh+='<tr class="details_%s" style="display:none;"><th>Question</th><th>Weight</th><th>Submitted</th><th>Raw Score</th><th>Lateness Multiplier</th><th>Final Score</th></tr>' % p2
+    bh+='<tr class="details_%s" style="display:none;"><th>Question</th><th>Submitted</th><th>Raw Score</th><th>Weight</th><th>Final Score</th></tr>' % p2
+    o = 0.0
+    for i in x['names']:
+        ext = ' <small><font color="darkgreen">ext</font></small>' if x['ext'][i] else ''
+        if x['weight'][i] == 0:
+            continue
+        bh+='<tr class="details_%s" style="display:none;">' % p2
+        bh+='<td>%s</td>' % x['dnames'][i]
+        bh+='<td>%s</td>' % ('❌' if x['time'][i] is None else x['time'][i].strftime('%Y-%m-%d, %H:%M:%S'))
+        bh+='<td>%.02f</td>' % x['raw'][i]
+        bh+='<td>%.02f</td>' % x['weight'][i]
+        # bh+='<td>%s%s</td>' % (('%.02f%%' % (x['late'][i]*100)) if x['late'][i] is not None else 'N/A', ext)
+        bh+='<td>%.02f</td>' % (x['weight'][i]*x['score'][i]) # x['score'][i]
+        o += x['weight'][i]*x['score'][i]
+        bh+='</tr>'
+    bh+='<tr><td colspan="4" align="right">Overall:</td><td>%.02f</td></tr>' % o
+    bh+='</table>'
+    bh+='</center>'
+    return [o,bh]

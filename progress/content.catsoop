@@ -1,0 +1,16 @@
+<style>
+table, td, th {
+    text-align:center;
+}
+</style>
+
+<script type="text/javascript">
+var toggle_details = function(path){
+    $('.details_' + path).toggle();
+}
+</script>
+
+<python>
+cs_scripts+='''<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>'''
+print(progress_page())
+</python>

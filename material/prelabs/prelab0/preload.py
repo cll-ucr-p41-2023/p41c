@@ -1,1 +1,1 @@
-cs_long_name = "Prelab 0: Practicing the Basics"
+cs_long_name, cs_release_date, cs_due_date = material_manager.get("prelabs", "prelab0").preload_vars()
