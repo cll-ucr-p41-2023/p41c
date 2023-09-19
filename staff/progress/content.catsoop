@@ -1,0 +1,25 @@
+<style>
+table, td, th {
+    text-align:center;
+}
+</style>
+
+<script type="text/javascript">
+var toggle_details = function(path){
+    $('.details_' + path).toggle();
+}
+</script>
+
+<python>
+cs_scripts+='''<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>'''
+form_target = f"{cs_url_root}/{cs_course}/staff/progress"
+
+student = cs_form.get("student") or cs_username
+
+try:
+    print(f"<center>{student_dropdown(student, form_target)}</center>")
+except UserNotAuthorizedError:
+    pass
+
+print(progress_page(user=student, only_released=False))
+</python>

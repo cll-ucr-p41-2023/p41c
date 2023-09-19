@@ -39,6 +39,26 @@ cs_top_menu = [
 #    {'text': 'Piazza', 'link': 'https://piazza.com/mit/spring17/601'},
 ]
 
+user_menu_options_permissions = [
+    {"entry": {"text": "Student Progress", "link": "COURSE/staff/progress"}, "permissions": {"grade"}},
+]
+
+def user_menu_options(context):
+    user_info = context.get("cs_user_info", None)
+    if user_info is None:
+        return []
+
+    user_permissions = user_info.get("permissions")
+    custom_user_menu = []
+    for user_menu_entry in user_menu_options_permissions:
+        required_persmission = user_menu_entry["permissions"]
+        user_has_permission = any((p in required_persmission) for p in user_permissions)
+
+        if user_has_permission:
+            custom_user_menu.append(user_menu_entry["entry"])
+
+    return custom_user_menu
+
 
 # AUTHENTICATION
 
@@ -322,12 +342,12 @@ def progress_page(user=None, only_released=True):
     if only_released:
         for prelab in material_manager.get("prelabs", status="released"):
             bh += f"<catsoop-subsection>{prelab.cs_long_name}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.basename)[1]
+            bh += progress_table_prelab(prelab.basename, user)[1]
     else:
         for prelab in material_manager.get("prelabs"):
             unreleased = not prelab.is_released()
             bh += f"<catsoop-subsection>{prelab.cs_long_name} {f'(Releasing: {prelab.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.basename)[1]
+            bh += progress_table_prelab(prelab.basename, user)[1]
     return bh
 
 def progress_table_prelab(basename, user=None):
@@ -360,3 +380,50 @@ def progress_table_prelab(basename, user=None):
     bh+='</table>'
     bh+='</center>'
     return [o,bh]
+
+# Restricted functions for use in staff-only pages
+from functools import wraps
+
+class UserNotAuthorizedError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+def is_user_authorized(required_persmission = "admin"):
+    return required_persmission in cs_user_info.get("permissions", set())
+
+def restricted_fn(required_persmission = "admin"):
+    """This decorator will stop unauthorized users from calling functions they
+    shouldn't be allowed to. Throws an error if user not authorized"""
+    def actual_wrapper(fn):
+        @wraps(fn)
+        def restricted_fn(*args, **kwargs):
+            if not is_user_authorized(required_persmission):
+                raise UserNotAuthorizedError("User not authorized to call {fn}".format(fn = fn.__name__))
+            else:
+                return fn(*args, **kwargs)
+        return restricted_fn
+    return actual_wrapper
+
+@restricted_fn("grade")
+def list_users():
+    users = csm_user.all_users_info(globals(), cs_course)
+    users_info = dict()
+    for username in users:
+        users_info[username] = csm_auth._get_user_information(globals(), dict(username = username), cs_course, username)
+    return [user for _, user in users_info.items()]
+
+@restricted_fn("grade")
+def sorted_usernames():
+    users = list_users()
+    return sorted([s.get("username") for s in users])
+
+@restricted_fn("grade")
+def student_dropdown(student, form_target, all_option=False):
+    student_dropdown = f"""<form action="{form_target}"><select name="student" onchange="this.form.submit()" style="width: 200px;">"""
+    if all_option:
+        student_dropdown += f"""<option value="all_students">all students</option>\n"""
+
+    for username in sorted_usernames():
+        student_dropdown += f"""<option value="{username}" {'selected="selected"' if username == student else ""}>{username}</option>\n"""
+    student_dropdown += "</select></form>"
+    return student_dropdown
