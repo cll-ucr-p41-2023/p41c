@@ -61,8 +61,8 @@ def user_menu_options(context):
 
 
 # AUTHENTICATION
-
-cs_auth_type='login'  # use the default (username/password based) authentication method
+cs_require_confirm_email = False
+cs_auth_type = 'login'  # use the default (username/password based) authentication method
 # for actually running a course at MIT, I like using OpenID Connect instead (https://oidc.mit.edu/).
 
 # custom XML tag handling, copied from one i wrote for 6.01 ages ago.  can
