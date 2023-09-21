@@ -186,6 +186,9 @@ def cs_post_load(context):
         context['cs_footer'] = 'This page was last updated on %s (revision <code>%s</code>).<br/>&nbsp;<br/>' % (t, h.decode())
     except:
         pass
+    
+    if not globals().get("allow_guest") and (cs_username is None or cs_username == "None"):
+        context["cs_content"] = "You must be logged in to view this page."
 
 # Assignments
 from datetime import datetime, timedelta, MAXYEAR

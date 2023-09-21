@@ -1,3 +1,7 @@
+<python>
+allow_guest = True
+</python>
+
 Welcome to Phys 41A!
 This site will host selected resources and assignments for the Python coding component of the course.
 Please bookmark the site for quick access.
