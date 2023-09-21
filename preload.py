@@ -171,7 +171,25 @@ from datetime import datetime
 # cs_post_load is invoked after the page is loaded but before it is rendered.
 # the example below shows the time at which the current page was last modified
 # (based on the Git history).
+def cs_create_user(context):
+    cs_username = context["cs_username"]
+
+    if cs_username is None or cs_username == "None":
+        return
+
+    try:
+        course_root = os.path.abspath(os.path.join(
+            context['cs_data_root'], 'courses', context['cs_path_info'][0]))
+        user_file = os.path.join(course_root, "__USERS__", f"{cs_username}.py")
+        if not os.path.exists(user_file):
+            subprocess.check_output(
+                f' echo "role=\\"Student\\"" > {user_file}', shell=True)
+    except:
+        pass
+
 def cs_post_load(context):
+    cs_create_user(context)
+
     if 'cs_long_name' in context:
         context['cs_content_header'] = context['cs_long_name']
         context['cs_title'] = '%s | %s' % (context['cs_long_name'], context['cs_title'])
