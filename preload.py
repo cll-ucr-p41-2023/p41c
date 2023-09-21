@@ -130,10 +130,10 @@ csq_python_sandbox = "python"
 #  grade: allowed to submit grades
 cs_default_role = 'Guest'
 cs_permissions = {'Admin': ['view_all', 'submit_all', 'impersonate', 'admin', 'whdw', 'email', 'grade'],
-               'Instructor': ['view_all', 'submit_all', 'impersonate', 'admin', 'whdw', 'email', 'grade'],
+            #   'Instructor': ['view_all', 'submit_all', 'impersonate', 'admin', 'whdw', 'email', 'grade'],
                'TA': ['view_all', 'submit_all', 'impersonate', 'whdw', 'email', 'grade'],
-               'UTA': ['view_all', 'submit_all', 'impersonate', 'grade'],
-               'LA': ['view_all', 'submit_all','impersonate', 'grade'],
+            #    'UTA': ['view_all', 'submit_all', 'impersonate', 'grade'],
+            #    'LA': ['view_all', 'submit_all','impersonate', 'grade'],
                'Student': ['view', 'submit'],
                'Guest': ['view']}
 
@@ -225,10 +225,10 @@ class Material:
 
     def path(self):
         return f"COURSE/material/{self.folder}/{self.basename}"
-    
+
     def is_released(self):
         return NOW >= self.dt_release_date
-    
+
     def is_due(self):
         return NOW >= self.dt_due_date
 
@@ -260,10 +260,24 @@ class MaterialManager:
             elif stats == "unreleased":
                 return [m for m in mats if not m.is_released()]
 
+    def content_list(self, folder):
+        mats = self.material.get(folder, [])
+        s = ""
+        for mat in mats:
+            entry = f"* <a href='{mat.path()}'>{mat.cs_long_name}</a> (Due: {mat.dt_due_date})\n\n"
+            if not mat.is_released():
+                if is_staff():
+                    s += f"<b style='color:#5454FF;'>The following content will become available to students at {mat.dt_release_date}.</b><br/>\n\n" + entry
+            else:
+                s += entry
+        return s
+
 # Add material
 material_manager = MaterialManager()
 material_manager.add([
-    Material("prelabs", "prelab0", "Prelab 0: Practicing the Basics", "ALWAYS", "NEVER"),
+    Material("prelabs", "prelab0", "Test - Released Prelab", "2023-09-21:00:00", "NEVER"),
+    Material("prelabs", "prelab0", "Test - Unreleased Prelab", "2024-09-30:00:00", "NEVER"),
+    Material("prelabs", "prelab0", "Test - 2nd Unreleased Prelab", "2024-10-10:00:00", "NEVER"),
 ])
 
 # Grading functions
@@ -383,6 +397,14 @@ def progress_table_prelab(basename, user=None):
 
 # Restricted functions for use in staff-only pages
 from functools import wraps
+
+def is_staff():
+    staff = False
+    try:
+        staff = cs_user_info.get('role') in {'TA', 'Admin'}
+    except:
+        pass
+    return staff
 
 class UserNotAuthorizedError(Exception):
     def __init__(self, message):
