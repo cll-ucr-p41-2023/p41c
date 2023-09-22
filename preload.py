@@ -22,6 +22,7 @@ cs_markdown_ignore_tags = ('script', 'svg', 'textarea')
 cs_top_menu = [
     {'text': 'Home', 'link': 'COURSE'},
     {'text': 'Resources', 'link': 'COURSE/material/resources'},
+    {'text': 'Lectures', 'link': 'COURSE/material/lectures'},
     {'text': 'Labs', 'link': [
         {'text': 'Prelabs', 'link': 'COURSE/material/prelabs'},
         {'text': 'Labs', 'link': 'COURSE/material/labs'},
@@ -232,11 +233,15 @@ class Material:
     """
     Base class for all material in the course.
     """
-    def __init__(self, folder:str, basename:str, cs_long_name:str, cs_release_date:str, cs_due_date:str):
+    def __init__(self, folder:str, name:str, cs_long_name:str, cs_release_date:str, cs_due_date:str):
         self.folder = folder
-        self.basename = basename
+        self.name = name
         self.cs_long_name = cs_long_name
+        if not cs_release_date:
+            cs_release_date = "ALWAYS"
         self.cs_release_date = cs_release_date
+        if not cs_due_date:
+            cs_due_date = "NEVER"
         self.cs_due_date = cs_due_date
         self.dt_release_date = cs_date_to_datetime(cs_release_date)
         self.dt_due_date = cs_date_to_datetime(cs_due_date)
@@ -245,13 +250,27 @@ class Material:
         return (self.cs_long_name, self.cs_release_date, self.cs_due_date)
 
     def path(self):
-        return f"COURSE/material/{self.folder}/{self.basename}"
+        return f"COURSE/material/{self.folder}/{self.name}"
 
     def is_released(self):
         return NOW >= self.dt_release_date
 
     def is_due(self):
         return NOW >= self.dt_due_date
+
+    def content_link(self):
+        return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.dt_due_date})\n\n"    
+
+class Lecture(Material):
+    def __init__(self, name, cs_release_date, urls):
+        self.urls = urls
+        super(Lecture, self).__init__("lectures", name, None, cs_release_date, None)
+    
+    def content_link(self):
+        s = f"<h2><u>{self.name} ({self.dt_release_date.strftime('%m/%d').replace('0', '')})</u></h2>\n\n"
+        for title, url in self.urls:
+            s += f"* <a target='_blank' rel='noopener noreferrer' href='{url}'>{title}</a>\n"
+        return s + "\n"
 
 class MaterialManager:
     """
@@ -266,11 +285,11 @@ class MaterialManager:
         for mat in material:
             self.material[mat.folder] = self.material.get(mat.folder, []) + [mat]
 
-    def get(self, folder, basename:str=None, status:Literal["released", "unreleased", "all"]="all") -> Union[Material, List[Material]]:
+    def get(self, folder, name:str=None, status:Literal["released", "unreleased", "all"]="all") -> Union[Material, List[Material]]:
         mats = self.material.get(folder, [])
-        if basename is not None:
+        if name is not None:
             for m in mats:
-                if m.basename == basename:
+                if m.name == name:
                     return m
             return None
         else:
@@ -281,24 +300,28 @@ class MaterialManager:
             elif stats == "unreleased":
                 return [m for m in mats if not m.is_released()]
 
-    def content_list(self, folder):
+    def content_directory(self, folder):
         mats = self.material.get(folder, [])
         s = ""
         for mat in mats:
-            entry = f"* <a href='{mat.path()}'>{mat.cs_long_name}</a> (Due: {mat.dt_due_date})\n\n"
             if not mat.is_released():
                 if is_staff():
-                    s += f"<b style='color:#5454FF;'>The following content will become available to students at {mat.dt_release_date}.</b><br/>\n\n" + entry
+                    s += f"<b style='color:#5454FF;'>The following content will become available to students at {mat.dt_release_date}.</b><br/>\n\n" + mat.content_link()
             else:
-                s += entry
+                s += mat.content_link()
         return s
 
 # Add material
 material_manager = MaterialManager()
 material_manager.add([
-    Material("prelabs", "prelab0", "Test - Released Prelab", "2023-09-21:00:00", "NEVER"),
-    Material("prelabs", "prelab0", "Test - Unreleased Prelab", "2024-09-30:00:00", "NEVER"),
-    Material("prelabs", "prelab0", "Test - 2nd Unreleased Prelab", "2024-10-10:00:00", "NEVER"),
+    Lecture("Lecture 1", "2023-09-21:00:00", [
+        ("Slides", "https://drive.google.com/file/d/1DxqY2SHtTUjWMkkF3Jo2QnBUr9F2DSrS/view?usp=sharing"),
+        ("lab1_class_data", "https://docs.google.com/spreadsheets/d/1njl49SWTaP5IKBkrcH6oMRLzP8Bil1z92x_v_VEpn_E/edit?usp=drive_link"),
+        ("lec1.ipynb", "https://colab.research.google.com/drive/1zHprqgeSPt1PgzI7AUXH-Ohtf3GgEMCw?usp=drive_link"),
+    ]),
+])
+material_manager.add([
+    Material("prelabs", "prelab0", "Prelab 0: Testing the Basics", "2023-09-19:00:00", "NEVER"),
 ])
 
 # Grading functions
@@ -377,16 +400,16 @@ def progress_page(user=None, only_released=True):
     if only_released:
         for prelab in material_manager.get("prelabs", status="released"):
             bh += f"<catsoop-subsection>{prelab.cs_long_name}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.basename, user)[1]
+            bh += progress_table_prelab(prelab.name, user)[1]
     else:
         for prelab in material_manager.get("prelabs"):
             unreleased = not prelab.is_released()
             bh += f"<catsoop-subsection>{prelab.cs_long_name} {f'(Releasing: {prelab.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.basename, user)[1]
+            bh += progress_table_prelab(prelab.name, user)[1]
     return bh
 
-def progress_table_prelab(basename, user=None):
-    path = ["material", "prelabs", basename]
+def progress_table_prelab(name, user=None):
+    path = ["material", "prelabs", name]
     auto_ext = []
     x = get_page_stats(path, auto_ext, user)
 

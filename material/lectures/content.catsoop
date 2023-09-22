@@ -1,0 +1,5 @@
+The material shown in the lectures will appear here at the start of class.
+
+<python>
+print(material_manager.content_directory("lectures"))
+</python>

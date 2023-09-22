@@ -1,5 +1,5 @@
 Labs will appear here as they are assigned.
 
 <python>
-print(material_manager.content_list("labs"))
+print(material_manager.content_directory("labs"))
 </python>

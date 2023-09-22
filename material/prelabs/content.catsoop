@@ -1,5 +1,5 @@
 Prelabs will appear here as they are assigned.
 
 <python>
-print(material_manager.content_list("prelabs"))
+print(material_manager.content_directory("prelabs"))
 </python>
