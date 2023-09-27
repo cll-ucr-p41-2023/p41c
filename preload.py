@@ -314,14 +314,14 @@ class MaterialManager:
 # Add material
 material_manager = MaterialManager()
 material_manager.add([
-    Lecture("Lecture 1", "2023-09-21:00:00", [
-        ("Slides", "https://drive.google.com/file/d/1DxqY2SHtTUjWMkkF3Jo2QnBUr9F2DSrS/view?usp=sharing"),
-        ("lab1_class_data", "https://docs.google.com/spreadsheets/d/1njl49SWTaP5IKBkrcH6oMRLzP8Bil1z92x_v_VEpn_E/edit?usp=drive_link"),
-        ("lec1.ipynb", "https://colab.research.google.com/drive/1zHprqgeSPt1PgzI7AUXH-Ohtf3GgEMCw?usp=drive_link"),
+    Lecture("Lecture 1", "2023-09-28:09:00", [
+        ("Slides", "https://drive.google.com/file/d/135YY3YXzwqgtN4p900CfuZcDIVSxkgrR/view?usp=drive_link"),
+        ("lab1_class_data", "https://docs.google.com/spreadsheets/d/1dPN6qy5IzO_RARFnXUWhkAxVZrIHbvZFIBk4wksK9Cg/edit?usp=drive_link"),
+        ("lec1.ipynb", "https://colab.research.google.com/drive/1-yqIttxf2yMAJQnzJgpKQOgG5ZOmWR_4?usp=drive_link"),
     ]),
-])
-material_manager.add([
-    Material("prelabs", "prelab0", "Prelab 0: Testing the Basics", "2023-09-19:00:00", "NEVER"),
+    Lecture("Lecture 2", "2023-09-29:09:00", [
+        ("lec2.ipynb", "https://colab.research.google.com/drive/1DPK08ChCyPeC72RgBc2XRTTS56kl7Kmz?usp=sharing"),
+    ])
 ])
 
 # Grading functions
