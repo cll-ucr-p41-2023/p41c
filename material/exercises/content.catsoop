@@ -1,0 +1,5 @@
+Exercises will appear here as they are assigned.
+
+<python>
+print(material_manager.content_directory("exercises"))
+</python>

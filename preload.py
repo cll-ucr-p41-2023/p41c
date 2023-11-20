@@ -27,6 +27,7 @@ cs_top_menu = [
         {'text': 'Prelabs', 'link': 'COURSE/material/prelabs'},
         {'text': 'Labs', 'link': 'COURSE/material/labs'},
     ]},
+    {'text': 'Exercises', 'link': 'COURSE/material/exercises'},
     {"link": "COURSE/progress", "text": "Progress"},
 #    {'text': 'Sample Menu', 'link': [
 #                                     {'link': 'COURSE/calendar', 'text': 'Calendar and Handouts'},
@@ -100,14 +101,18 @@ def cs_course_handle_custom_tags(text):
 
 csq_python3 = True
 csq_python_sandbox = "python"
+csq_python_sandbox_type = "python"
 # something like the following can be used to use a sandboxed python
 # interpreter on the production copy (after following the directions at
 # https://catsoop.mit.edu/website/docs/installing/server_configuration for
 # setting up the sandbox):
-#
-#if 'localhost' in cs_url_root:
-#    # locally, just use the system Python install
-#    csq_python_sandbox_interpreter = '/usr/bin/python3'
+if 'localhost' in cs_url_root:
+    # locally, just use the system Python install
+    csq_python_sandbox_interpreter = "/Users/alexherrera/miniconda3/envs/p41a/bin/python3.11"
+    try:
+        csq_sandbox_options["do_rlimits"] = False
+    except:
+        csq_sandbox_options = {"do_rlimits": False}
 #else:
 #    # on the server, use the properly sandboxed python
 #    csq_python_sandbox_interpreter = '/home/ubuntu/py3_sandbox/bin/python3'
@@ -259,7 +264,7 @@ class Material:
         return NOW >= self.dt_due_date
 
     def content_link(self):
-        return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.dt_due_date})\n\n"    
+        return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.dt_due_date.strftime('%m/%d @ %I:%M %p')})\n\n"    
 
 class Lecture(Material):
     def __init__(self, name, cs_release_date, urls):
@@ -322,6 +327,9 @@ material_manager.add([
     Lecture("Lecture 2", "2023-09-29:09:00", [
         ("lec2.ipynb", "https://colab.research.google.com/drive/1DPK08ChCyPeC72RgBc2XRTTS56kl7Kmz?usp=sharing"),
     ])
+])
+material_manager.add([
+    Material("exercises", "ex1", "Exercise 1", "2023-11-20:09:00", "2023-11-22:23:59"),
 ])
 
 # Grading functions
@@ -396,20 +404,20 @@ def get_page_stats(path, auto_ext=None, user=None):
     return {'time': times, 'raw': raws, 'late': latenesses, 'score': bests, 'weight': np, 'names': list(names), 'dnames': dnames, 'ext': exts, 'late_by': late_by, 'due':dues}
 
 def progress_page(user=None, only_released=True):
-    bh = "<catsoop-section>Prelabs</catsoop-section>"
+    bh = "<catsoop-section>Exercises</catsoop-section>"
     if only_released:
-        for prelab in material_manager.get("prelabs", status="released"):
-            bh += f"<catsoop-subsection>{prelab.cs_long_name}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.name, user)[1]
+        for ex in material_manager.get("exercises", status="released"):
+            bh += f"<catsoop-subsection>{ex.cs_long_name}</catsoop-subsection>"
+            bh += progress_table_exercise(ex.name, user)[1]
     else:
-        for prelab in material_manager.get("prelabs"):
-            unreleased = not prelab.is_released()
-            bh += f"<catsoop-subsection>{prelab.cs_long_name} {f'(Releasing: {prelab.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
-            bh += progress_table_prelab(prelab.name, user)[1]
+        for ex in material_manager.get("exercises"):
+            unreleased = not ex.is_released()
+            bh += f"<catsoop-subsection>{ex.cs_long_name} {f'(Releasing: {ex.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
+            bh += progress_table_exercise(ex.name, user)[1]
     return bh
 
-def progress_table_prelab(name, user=None):
-    path = ["material", "prelabs", name]
+def progress_table_exercise(name, user=None):
+    path = ["material", "exercises", name]
     auto_ext = []
     x = get_page_stats(path, auto_ext, user)
 
