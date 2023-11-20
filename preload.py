@@ -109,14 +109,14 @@ csq_python_sandbox_type = "python"
 if 'localhost' in cs_url_root:
     # locally, just use the system Python install
     csq_python_sandbox_interpreter = "/Users/alexherrera/miniconda3/envs/p41a/bin/python3.11"
-    try:
-        csq_sandbox_options["do_rlimits"] = False
-    except:
-        csq_sandbox_options = {"do_rlimits": False}
-#else:
-#    # on the server, use the properly sandboxed python
-#    csq_python_sandbox_interpreter = '/home/ubuntu/py3_sandbox/bin/python3'
+else:
+    # on the server, use the properly sandboxed python
+    csq_python_sandbox_interpreter = "/home/catsoop/miniconda3/envs/p41a/bin/python"
 
+try:
+    csq_sandbox_options["do_rlimits"] = False
+except:
+    csq_sandbox_options = {"do_rlimits": False}
 
 # PERMISSIONS
 
