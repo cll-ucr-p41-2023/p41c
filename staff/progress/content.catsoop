@@ -17,7 +17,7 @@ form_target = f"{cs_url_root}/{cs_course}/staff/progress"
 student = cs_form.get("student") or cs_username
 
 try:
-    print(f"<center>{student_dropdown(student, form_target)}</center>")
+    print(f"<center>{student_dropdown(student, form_target, all_option=True)}</center>")
 except UserNotAuthorizedError:
     pass
 

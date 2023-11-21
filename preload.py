@@ -403,17 +403,25 @@ def get_page_stats(path, auto_ext=None, user=None):
     dnames = {i: qi[i].get('csq_display_name', i) for i in names}
     return {'time': times, 'raw': raws, 'late': latenesses, 'score': bests, 'weight': np, 'names': list(names), 'dnames': dnames, 'ext': exts, 'late_by': late_by, 'due':dues}
 
-def progress_page(user=None, only_released=True):
-    bh = "<catsoop-section>Exercises</catsoop-section>"
-    if only_released:
-        for ex in material_manager.get("exercises", status="released"):
-            bh += f"<catsoop-subsection>{ex.cs_long_name}</catsoop-subsection>"
-            bh += progress_table_exercise(ex.name, user)[1]
+def progress_page(user=None, only_released=True, with_name=False):
+    bh = ""
+    if user == "all_students":
+        for username in sorted_usernames():
+            user_info = csm_auth._get_user_information(globals(), dict(username = username), cs_course, username)
+            if user_info["role"] == "Student":
+                bh += username
+                bh += progress_page(username, only_released, with_name=True)
     else:
-        for ex in material_manager.get("exercises"):
-            unreleased = not ex.is_released()
-            bh += f"<catsoop-subsection>{ex.cs_long_name} {f'(Releasing: {ex.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
-            bh += progress_table_exercise(ex.name, user)[1]
+        bh += f"<catsoop-section>Exercises</catsoop-section>"
+        if only_released:
+            for ex in material_manager.get("exercises", status="released"):
+                bh += f"<catsoop-subsection>{ex.cs_long_name}</catsoop-subsection>"
+                bh += progress_table_exercise(ex.name, user)[1]
+        else:
+            for ex in material_manager.get("exercises"):
+                unreleased = not ex.is_released()
+                bh += f"<catsoop-subsection>{ex.cs_long_name} {f'(Releasing: {ex.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
+                bh += progress_table_exercise(ex.name, user)[1]
     return bh
 
 def progress_table_exercise(name, user=None):
