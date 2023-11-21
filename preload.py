@@ -43,6 +43,7 @@ cs_top_menu = [
 
 user_menu_options_permissions = [
     {"entry": {"text": "Student Progress", "link": "COURSE/staff/progress"}, "permissions": {"grade"}},
+    {"entry": {"text": "Test Page", "link": "COURSE/staff/test"}, "permissions": {"grade"}},
 ]
 
 def user_menu_options(context):
