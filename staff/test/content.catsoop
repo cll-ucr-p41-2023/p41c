@@ -1,3 +1,10 @@
 <python>
-print(material_manager.get("exercises", "ex1").dt_due_date)
+from pytz import timezone
+local_tz = timezone('US/Pacific')
+current_time = datetime.now()
+print("Local time:", current_time.astimezone(local_tz), end="<br>")
+print("Server time:", current_time, end="<br>")
+
+print("Local due date of exercise 1:", material_manager.get("exercises", "ex1").dt_due_date.astimezone(local_tz), end="<br>")
+print("Server due date of exercise 1:", material_manager.get("exercises", "ex1").dt_due_date, end="<br>")
 </python>
