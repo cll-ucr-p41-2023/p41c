@@ -219,11 +219,16 @@ def cs_post_load(context):
 from datetime import datetime, timedelta, MAXYEAR
 from typing import Dict, List, Literal, Tuple, Union
 
-NOW = datetime.now()
+if 'localhost' in cs_url_root:
+    LOCAL_SERVER_TIME_DIFF = timedelta(hours=0)
+else:
+    # Server is 8 hours ahead somewhere in the cloud
+    LOCAL_SERVER_TIME_DIFF = timedelta(hours=8)
+SERVER_TIME = datetime.now()
 
 def cs_date_to_datetime(timestring):
     """
-    Converts cs_release/due_dates into datetime objects for easier use in the back end.
+    Converts cs_release/due_dates into datetime objects for easier use in the back end, taking into account the local-to-server time difference.
     """
     if timestring == "NEVER":
         return datetime(year=MAXYEAR, month=12, day=31, hour=23, minute=59, second=59)
@@ -231,9 +236,15 @@ def cs_date_to_datetime(timestring):
         return datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0)
     elif timestring[0].isdigit():
         # absolute times are specified as strings 'YYYY-MM-DD:HH:MM'
-        return datetime.strptime(timestring, "%Y-%m-%d:%H:%M")
+        return datetime.strptime(timestring, "%Y-%m-%d:%H:%M") + LOCAL_SERVER_TIME_DIFF
     else:
         raise Exception("Invalid time style: %s" % timestring)
+
+def datetime_to_cs_date(date):
+    """
+    Converts datetime objects into cs_release/due_dates for easier use in the back end.
+    """
+    return date.strftime("%Y-%m-%d:%H:%M")
 
 class Material:
     """
@@ -243,14 +254,20 @@ class Material:
         self.folder = folder
         self.name = name
         self.cs_long_name = cs_long_name
+
         if not cs_release_date:
-            cs_release_date = "ALWAYS"
-        self.cs_release_date = cs_release_date
+            self.cs_release_date = "ALWAYS"
+            self.dt_release_date = cs_date_to_datetime(self.cs_release_date)
+        else:
+            self.dt_release_date = cs_date_to_datetime(cs_release_date)
+            self.cs_release_date = datetime_to_cs_date(self.dt_release_date)
+        
         if not cs_due_date:
-            cs_due_date = "NEVER"
-        self.cs_due_date = cs_due_date
-        self.dt_release_date = cs_date_to_datetime(cs_release_date)
-        self.dt_due_date = cs_date_to_datetime(cs_due_date)
+            self.cs_due_date = "NEVER"
+            self.dt_due_date = cs_date_to_datetime(self.cs_due_date)
+        else:
+            self.dt_due_date = cs_date_to_datetime(cs_due_date)
+            self.cs_due_date = datetime_to_cs_date(self.dt_due_date)
 
     def preload_vars(self):
         return (self.cs_long_name, self.cs_release_date, self.cs_due_date)
@@ -259,10 +276,10 @@ class Material:
         return f"COURSE/material/{self.folder}/{self.name}"
 
     def is_released(self):
-        return NOW >= self.dt_release_date
+        return SERVER_TIME >= self.dt_release_date
 
     def is_due(self):
-        return NOW >= self.dt_due_date
+        return SERVER_TIME >= self.dt_due_date
 
     def content_link(self):
         return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.dt_due_date.strftime('%m/%d @ %I:%M %p')})\n\n"    
@@ -330,7 +347,7 @@ material_manager.add([
     ])
 ])
 material_manager.add([
-    Material("exercises", "ex1", "Exercise 1", "2023-11-20:09:00", "2023-11-22:23:59"),
+    Material("exercises", "ex1", "Exercise 1", "2023-11-20:09:00", "2023-11-23:23:59"),
 ])
 
 # Grading functions
