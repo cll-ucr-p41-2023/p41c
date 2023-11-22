@@ -409,7 +409,7 @@ def progress_page(user=None, only_released=True, with_name=False):
     if user == "all_students":
         for username in sorted_usernames():
             user_info = csm_auth._get_user_information(globals(), dict(username = username), cs_course, username)
-            if user_info["role"] == "Student":
+            if user_info["role"] == "Student" and username != "student":
                 bh += username
                 bh += progress_page(username, only_released, with_name=True)
     else:
