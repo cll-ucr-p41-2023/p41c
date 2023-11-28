@@ -226,7 +226,7 @@ else:
     LOCAL_SERVER_TIME_DIFF = timedelta(hours=8)
 SERVER_TIME = datetime.now()
 
-def cs_date_to_datetime(timestring):
+def cs_date_to_datetime(timestring, local=False):
     """
     Converts cs_release/due_dates into datetime objects for easier use in the back end, taking into account the local-to-server time difference.
     """
@@ -236,7 +236,10 @@ def cs_date_to_datetime(timestring):
         return datetime(year=1900, month=1, day=1, hour=0, minute=0, second=0)
     elif timestring[0].isdigit():
         # absolute times are specified as strings 'YYYY-MM-DD:HH:MM'
-        return datetime.strptime(timestring, "%Y-%m-%d:%H:%M") + LOCAL_SERVER_TIME_DIFF
+        if local:
+            return datetime.strptime(timestring, "%Y-%m-%d:%H:%M")
+        else:
+            return datetime.strptime(timestring, "%Y-%m-%d:%H:%M") + LOCAL_SERVER_TIME_DIFF
     else:
         raise Exception("Invalid time style: %s" % timestring)
 
@@ -256,16 +259,24 @@ class Material:
         self.cs_long_name = cs_long_name
 
         if not cs_release_date:
+            self.local_cs_release_date = "ALWAYS"
+            self.local_dt_release_date = cs_date_to_datetime(self.local_cs_release_date, local=True)
             self.cs_release_date = "ALWAYS"
             self.dt_release_date = cs_date_to_datetime(self.cs_release_date)
         else:
+            self.local_cs_release_date = cs_release_date
+            self.local_dt_release_date = cs_date_to_datetime(self.local_cs_release_date, local=True)
             self.dt_release_date = cs_date_to_datetime(cs_release_date)
             self.cs_release_date = datetime_to_cs_date(self.dt_release_date)
         
         if not cs_due_date:
+            self.local_cs_due_date = "NEVER"
+            self.local_dt_due_date = cs_date_to_datetime(self.local_cs_due_date, local=True)
             self.cs_due_date = "NEVER"
             self.dt_due_date = cs_date_to_datetime(self.cs_due_date)
         else:
+            self.local_cs_due_date = cs_due_date
+            self.local_dt_due_date = cs_date_to_datetime(self.local_cs_due_date, local=True)
             self.dt_due_date = cs_date_to_datetime(cs_due_date)
             self.cs_due_date = datetime_to_cs_date(self.dt_due_date)
 
@@ -282,7 +293,7 @@ class Material:
         return SERVER_TIME >= self.dt_due_date
 
     def content_link(self):
-        return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.dt_due_date.strftime('%m/%d @ %I:%M %p')})\n\n"    
+        return f"* <a href='{self.path()}'>{self.cs_long_name}</a> (Due: {self.local_dt_due_date.strftime('%m/%d @ %I:%M %p')})\n\n"    
 
 class Lecture(Material):
     def __init__(self, name, cs_release_date, urls):
