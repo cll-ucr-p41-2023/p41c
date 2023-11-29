@@ -333,7 +333,7 @@ class Lecture(Material):
             "lectures", name, None, cs_release_date, None)
 
     def content_link(self):
-        s = f"<h2><u>{self.name} ({self.dt_release_date.strftime('%m/%d').replace('0', '')})</u></h2>\n\n"
+        s = f"<h2><u>{self.name} ({self.local_dt_release_date.strftime('%m/%d').replace('0', '')})</u></h2>\n\n"
         for title, url in self.urls:
             s += f"* <a target='_blank' rel='noopener noreferrer' href='{url}'>{title}</a>\n"
         return s + "\n"
@@ -375,7 +375,7 @@ class MaterialManager:
         for mat in mats:
             if not mat.is_released():
                 if is_staff():
-                    s += f"<b style='color:#5454FF;'>The following content will become available to students at {mat.dt_release_date}.</b><br/>\n\n" + mat.content_link(
+                    s += f"<b style='color:#5454FF;'>The following content will become available to students at {mat.local_dt_release_date}.</b><br/>\n\n" + mat.content_link(
                     )
             else:
                 s += mat.content_link()
@@ -397,6 +397,8 @@ material_manager.add([
 material_manager.add([
     Material("exercises", "ex1", "Exercise 1",
              "2023-11-20:09:00", "2023-11-23:23:59"),
+    Material("exercises", "ex2", "Exercise 2",
+             "2023-11-29:11:00", "2023-12-4:23:59")
 ])
 
 # Grading functions
@@ -494,7 +496,7 @@ def progress_page(user=None, only_released=True, with_name=False):
         else:
             for ex in material_manager.get("exercises"):
                 unreleased = not ex.is_released()
-                bh += f"<catsoop-subsection>{ex.cs_long_name} {f'(Releasing: {ex.dt_release_date})' if unreleased else ''}</catsoop-subsection>"
+                bh += f"<catsoop-subsection>{ex.cs_long_name} {f'(Releasing: {ex.local_dt_release_date})' if unreleased else ''}</catsoop-subsection>"
                 bh += progress_table_exercise(ex.name, user)[1]
     return bh
 
