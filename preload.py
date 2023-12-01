@@ -522,7 +522,7 @@ def progress_table_exercise(name, user=None):
         bh += '<tr class="details_%s" style="display:none;">' % p2
         bh += '<td>%s</td>' % x['dnames'][i]
         bh += '<td>%s</td>' % ('❌' if x['time'][i]
-                               is None else x['time'][i].strftime('%Y-%m-%d, %H:%M:%S'))
+                               is None else (x['time'][i] - LOCAL_SERVER_TIME_DIFF).strftime('%Y-%m-%d, %H:%M:%S'))
         bh += '<td>%.02f</td>' % x['raw'][i]
         bh += '<td>%.02f</td>' % x['weight'][i]
         # bh+='<td>%s%s</td>' % (('%.02f%%' % (x['late'][i]*100)) if x['late'][i] is not None else 'N/A', ext)
