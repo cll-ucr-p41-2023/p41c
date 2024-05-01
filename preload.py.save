@@ -384,7 +384,22 @@ class MaterialManager:
 
 # Add material
 material_manager = MaterialManager()
-material_manager.add([])
+material_manager.add([
+    Lecture("Lecture 1", "2023-09-28:09:00", [
+        ("Slides", "https://drive.google.com/file/d/1Aqsl_OH-NYlkHKdcZHPyuI4ivxECyEG2/view?usp=sharing"),
+        ("lab1_class_data", "https://docs.google.com/spreadsheets/d/1dPN6qy5IzO_RARFnXUWhkAxVZrIHbvZFIBk4wksK9Cg/edit?usp=sharing"),
+        ("lec1.ipynb", "https://colab.research.google.com/drive/1-yqIttxf2yMAJQnzJgpKQOgG5ZOmWR_4?usp=sharing"),
+    ]),
+    Lecture("Lecture 2", "2023-09-29:09:00", [
+        ("lec2.ipynb", "https://colab.research.google.com/drive/1DPK08ChCyPeC72RgBc2XRTTS56kl7Kmz?usp=sharing"),
+    ])
+])
+material_manager.add([
+    Material("exercises", "ex1", "Exercise 1",
+             "2023-11-20:09:00", "2023-11-23:23:59"),
+    Material("exercises", "ex2", "Exercise 2",
+             "2023-11-29:11:00", "2023-12-4:23:59")
+])
 
 # Grading functions
 
