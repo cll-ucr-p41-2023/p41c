@@ -1,0 +1,430 @@
+Imagine that you are launching an object through a mysterious wind tunnel in a cave system with the goal of modeling the velocity of the object as a function of time as it moves through the tunnel.
+For a variety of reasons, you cannot set up devices in the tunnel.
+You only have access to the position of the object over time via hardware installed on the object.
+At this point in your research, you are only interested in modeling the velocity of the object in the $x$ direction.
+The data that you have access to is shown in the figure below.
+
+<center>
+    <img src="CURRENT/initial_data.png"/>
+</center>
+
+Based on your research, you have two guesses for what the differential equations governing this behavior are:
+
+\begin{align}
+  1.
+  \begin{cases}
+    \dfrac{dx}{dt} = v(t) \\
+    \dfrac{dv}{dt} = \frac{a}{v(t)^2} - b
+  \end{cases}
+\end{align}
+
+\begin{align}
+  2.
+  \begin{cases}
+    \dfrac{dx}{dt} = v(t) \\
+    \dfrac{dv}{dt} = \frac{a}{v(t)^2} - b*x(t)
+  \end{cases}
+\end{align}
+
+where $a$ and $b$ are known coefficients.
+
+In this exercise, you will determine which guess is correct.
+
+<catsoop-section>Defining the Differential Equation Functions</catsoop-section>
+
+<question pythoncode>
+csq_prompt = """
+Write a function `guess_1(x, time, a, b)` which computes the derivative of `x` at `t` according to guess $1$ above.
+"""
+
+csq_initial = """
+def guess_1(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    return
+"""
+
+csq_soln = """
+def guess_1(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b]
+"""
+
+csq_tests = [
+    {'code': 'ans = guess_1([0, 10], 0, 1, 1)'},
+    {'code': 'ans = guess_1([5, 20], 2, 3, 4)'},
+    {'code': 'ans = guess_1([10, 1], 1, 2, 2)'},
+]
+</question>
+
+<question pythoncode>
+csq_prompt = """
+Write a function `guess_2(x, time, a, b)` which computes the derivative of `x` at `t` according to guess $2$ above.
+"""
+
+csq_initial = """
+def guess_2(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    return
+"""
+
+csq_soln = """
+def guess_2(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b*distance]
+"""
+
+csq_tests = [
+    {'code': 'ans = guess_1([0, 10], 0, 1, 1)'},
+    {'code': 'ans = guess_1([5, 20], 2, 3, 4)'},
+    {'code': 'ans = guess_1([10, 1], 1, 2, 2)'},
+]
+</question>
+
+<catsoop-section>Defining the Initial Conditions</catsoop-section>
+
+<question pythoncode>
+csq_prompt = """
+Define the variables necessary to solve the differential equations.
+Assume that the coefficients $a = 3$ and $b = 6$.
+"""
+
+csq_initial = """
+# The initial distance should be 0 m and the initial velocity should be 10 m/s.
+x0 = None
+
+# We want to analyze our data for 50 evenly-spaced data points from 0 to 3 seconds.
+# Hint: Use the numpy library (remember to import it)
+time = None
+
+# Coefficient 1
+a = None
+
+# Coefficient 2
+b = None
+"""
+
+csq_soln = """
+import numpy as np
+x0 = [0, 10]
+time = np.linspace(0, 3, 50)
+a = 3
+b = 6
+"""
+
+csq_tests = [
+    {'code': 'ans = x0'},
+    {'code': 'ans = time.tolist()'},
+    {'code': 'ans = a'},
+    {'code': 'ans = b'},
+]
+</question>
+
+<catsoop-section>Solving the Differential Equations</catsoop-section>
+
+For the following questions, assume that you have access to all of the variables and functions that we've defined so far, including the `np` library.
+
+<question pythoncode>
+csq_prompt = """
+Call `odeint` to solve the differential equations for guess $1$. Store this solution in a variable named `solution_1`.
+Remember to import `odeint`.
+"""
+
+csq_mode="eval"
+
+csq_code_pre = """
+import numpy as np
+def guess_1(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b]
+x0 = [0, 10]
+time = np.linspace(0, 3, 50)
+a = 3
+b = 6
+"""
+
+csq_initial = """
+# Your code here
+
+
+
+
+"""
+
+csq_soln = """from scipy.integrate import odeint
+solution_1 = odeint(guess_1, x0, time, args=(a, b))
+"""
+
+csq_tests = [
+    {'code': 'ans = solution_1.tolist()'}
+]
+</question>
+
+<question pythoncode>
+csq_prompt = """
+Call `odeint` to solve the differential equations for guess $2$. Store this solution in a variable named `solution_2`.
+Remember to import `odeint`.
+"""
+
+csq_mode="eval"
+
+csq_code_pre = """
+import numpy as np
+def guess_2(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b*distance]
+x0 = [0, 10]
+time = np.linspace(0, 3, 50)
+a = 3
+b = 6
+"""
+
+csq_initial = """
+# Your code here
+
+
+
+
+"""
+
+csq_soln = """from scipy.integrate import odeint
+solution_2 = odeint(guess_2, x0, time, args=(a, b))
+"""
+
+csq_tests = [
+    {'code': 'ans = solution_2.tolist()'}
+]
+</question>
+
+<catsoop-section>Visualizing Your Results</catsoop-section>
+
+Now that you have your two solutions for the two guesses, plot the solution against the data that you have.
+Assume that you have access to all of the variables that you've defined so far.
+Also, that you have access to the data for the observed position over time through a variable named `observed_X` (as a `numpy` array).
+
+<question mpl>
+csq_code_pre = """
+import matplotlib
+matplotlib.use('Agg')
+
+import numpy as np
+def guess_1(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b]
+x0 = [0, 10]
+time = np.linspace(0, 3, 50)
+a = 3
+b = 6
+
+def actual(x, time, a, b):
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b*distance]
+
+from scipy.integrate import odeint
+from numpy import array
+solution_1 = odeint(guess_1, x0, time, args=(a, b))
+
+actual_solution = odeint(actual, x0, time, args=(a, b))
+noise = array([-0.01399888, -0.14654257,  0.05163608,  0.0615177 , -0.01034226,
+       -0.12372798, -0.01649107,  0.06873417, -0.08154572,  0.07142639,
+       -0.09259983,  0.04108164, -0.0226993 , -0.038569  ,  0.0087118 ,
+        0.0827462 , -0.01312097,  0.01996719,  0.05783408,  0.10825514,
+       -0.02099561, -0.08180513,  0.02154313,  0.1011069 , -0.03751588,
+        0.07289426,  0.01625667,  0.00702629, -0.0260293 , -0.07111317,
+        0.11350211,  0.1279207 , -0.00485291,  0.00441139, -0.05797281,
+        0.04555249,  0.01901324,  0.10438047, -0.01306425, -0.01832483,
+       -0.00522832,  0.06252973,  0.02838749,  0.08800542, -0.03394803,
+        0.07030093,  0.06851593,  0.1050246 ,  0.022637  ,  0.07680393])
+observed_X = actual_solution[:, 0] + noise
+"""
+
+csq_prompt = """
+On a `matplotlib` plot, do the following:
+- Title the plot: Object position over time
+- Label the x-axis: Time (s)
+- Label the y-axis: Position (m)
+- Make a scatter plot of `time` vs. `observed_X`.
+    - Label this plot: Observed position
+- Make a plot of the `time` vs. the position column in `solution_1`.
+    - Label this plot: Guess 1 position
+- Add a legend to the plot
+
+Hint: Remember to import `matplotlib.pyplot`!
+"""
+
+csq_initial = """
+# Your code here
+
+
+
+"""
+
+csq_soln = """
+import matplotlib.pyplot as plt
+plt.scatter(time, observed_X, label="Observed position")
+plt.title("Object position over time")
+plt.xlabel("Time (s)")
+plt.ylabel("Position (m)")
+plt.plot(time, solution_1[:, 0], label="Guess 1 position")
+plt.legend()
+plt.show()
+"""
+
+csq_tests = [
+    {'code': 'ans = plt.gca().collections[0].get_offsets().data.T[0].tolist()', 'description': 'Test for scatter plot X values'},
+    {'code': 'ans = plt.gca().collections[0].get_offsets().data.T[1].tolist()', 'description': 'Test for scatter plot Y values'},
+    {'code': 'ans = plt.gca().get_lines()[0].get_data()[0].tolist()', 'description': 'Test for line plot X values'},
+    {'code': 'ans = plt.gca().get_lines()[0].get_data()[1].tolist()', 'description': 'Test for line plot Y values'},
+    {'code': 'ans = set(x.get_text() for x in plt.gca().get_legend().texts)', 'description': 'Test for legend labels'},
+    {'code': 'ans = plt.gca().get_title()', 'description': 'Test for plot title'},
+    {'code': 'ans = plt.gca().get_xlabel()', 'description': 'Test for x label'},
+    {'code': 'ans = plt.gca().get_ylabel()', 'description': 'Test for y label'},
+]
+</question>
+
+<question mpl>
+csq_code_pre = """
+import matplotlib
+matplotlib.use('Agg')
+
+import numpy as np
+def guess_2(x, time, a, b):
+    \"\"\"
+    x: list of form [x_distance (m), x_velocity (m/s)]
+    t: time (s)
+    a: some known coefficient
+    b: some known coefficient
+    \"\"\"
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b*distance]
+x0 = [0, 10]
+time = np.linspace(0, 3, 50)
+a = 3
+b = 6
+
+def actual(x, time, a, b):
+    distance = x[0]
+    velocity = x[1]
+    return [velocity, a*(1/velocity**2) - b*distance]
+
+from scipy.integrate import odeint
+from numpy import array
+solution_2 = odeint(guess_2, x0, time, args=(a, b))
+
+actual_solution = odeint(actual, x0, time, args=(a, b))
+noise = array([-0.01399888, -0.14654257,  0.05163608,  0.0615177 , -0.01034226,
+       -0.12372798, -0.01649107,  0.06873417, -0.08154572,  0.07142639,
+       -0.09259983,  0.04108164, -0.0226993 , -0.038569  ,  0.0087118 ,
+        0.0827462 , -0.01312097,  0.01996719,  0.05783408,  0.10825514,
+       -0.02099561, -0.08180513,  0.02154313,  0.1011069 , -0.03751588,
+        0.07289426,  0.01625667,  0.00702629, -0.0260293 , -0.07111317,
+        0.11350211,  0.1279207 , -0.00485291,  0.00441139, -0.05797281,
+        0.04555249,  0.01901324,  0.10438047, -0.01306425, -0.01832483,
+       -0.00522832,  0.06252973,  0.02838749,  0.08800542, -0.03394803,
+        0.07030093,  0.06851593,  0.1050246 ,  0.022637  ,  0.07680393])
+observed_X = actual_solution[:, 0] + noise
+"""
+
+csq_prompt = """
+On a `matplotlib` plot, do the following:
+- Title the plot: Object position over time
+- Label the x-axis: Time (s)
+- Label the y-axis: Position (m)
+- Make a scatter plot of `time` vs. `observed_X`.
+    - Label this plot: Observed position
+- Make a plot of the `time` vs. the position column in `solution_2`.
+    - Label this plot: Guess 2 position
+- Add a legend to the plot
+
+Hint: Remember to import `matplotlib.pyplot`!
+"""
+
+csq_initial = """
+# Your code here
+
+
+
+"""
+
+csq_soln = """
+import matplotlib.pyplot as plt
+plt.scatter(time, observed_X, label="Observed position")
+plt.title("Object position over time")
+plt.xlabel("Time (s)")
+plt.ylabel("Position (m)")
+plt.plot(time, solution_2[:, 0], label="Guess 2 position")
+plt.legend()
+plt.show()
+"""
+
+csq_tests = [
+    {'code': 'ans = plt.gca().collections[0].get_offsets().data.T[0].tolist()', 'description': 'Test for scatter plot X values'},
+    {'code': 'ans = plt.gca().collections[0].get_offsets().data.T[1].tolist()', 'description': 'Test for scatter plot Y values'},
+    {'code': 'ans = plt.gca().get_lines()[0].get_data()[0].tolist()', 'description': 'Test for line plot X values'},
+    {'code': 'ans = plt.gca().get_lines()[0].get_data()[1].tolist()', 'description': 'Test for line plot Y values'},
+    {'code': 'ans = set(x.get_text() for x in plt.gca().get_legend().texts)', 'description': 'Test for legend labels'},
+    {'code': 'ans = plt.gca().get_title()', 'description': 'Test for plot title'},
+    {'code': 'ans = plt.gca().get_xlabel()', 'description': 'Test for x label'},
+    {'code': 'ans = plt.gca().get_ylabel()', 'description': 'Test for y label'},
+]
+</question>
+
+<catsoop-section>Conclusion</catsoop-section>
+Based off of your analysis, which guess are you more confident in?
+
+<question multiplechoice>
+csq_renderer = "radio"
+
+csq_options = [
+    "Guess 1",
+    "Guess 2",
+]
+
+csq_soln = "Guess 2"
+</question>
