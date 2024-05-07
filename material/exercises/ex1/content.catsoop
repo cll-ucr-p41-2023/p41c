@@ -98,9 +98,9 @@ def guess_2(x, time, a, b):
 """
 
 csq_tests = [
-    {'code': 'ans = guess_1([0, 10], 0, 1, 1)'},
-    {'code': 'ans = guess_1([5, 20], 2, 3, 4)'},
-    {'code': 'ans = guess_1([10, 1], 1, 2, 2)'},
+    {'code': 'ans = guess_2([0, 10], 0, 1, 1)'},
+    {'code': 'ans = guess_2([5, 20], 2, 3, 4)'},
+    {'code': 'ans = guess_2([10, 1], 1, 2, 2)'},
 ]
 </question>
 
@@ -237,7 +237,7 @@ csq_tests = [
 
 Now that you have your two solutions for the two guesses, plot the solution against the data that you have.
 Assume that you have access to all of the variables that you've defined so far.
-Also, that you have access to the data for the observed position over time through a variable named `observed_X` (as a `numpy` array).
+Also, assume that you have access to the data for the observed position over time through a variable named `observed_X` (as a `numpy` array).
 
 <question mpl>
 csq_code_pre = """

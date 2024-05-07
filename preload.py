@@ -384,7 +384,9 @@ class MaterialManager:
 
 # Add material
 material_manager = MaterialManager()
-material_manager.add([])
+material_manager.add([
+    Material("exercises", "ex1", "Exercise 1", "2024-05-07:09:00", "2024-05-13:23:59"),
+])
 
 # Grading functions
 
